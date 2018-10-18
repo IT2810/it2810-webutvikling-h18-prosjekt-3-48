@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { Constants, Location, Permissions } from 'expo';
+import { AsyncStorage } from 'react-native';
 
 export default class SearchScreen extends React.Component {
     constructor(props) {
@@ -11,7 +12,7 @@ export default class SearchScreen extends React.Component {
             pointsOfInterest: []
         }
     }
-    
+
     render() {
         if (false) {
             return (
@@ -28,7 +29,7 @@ export default class SearchScreen extends React.Component {
             </View>
         );
     }
-    
+
     getLocation = async () => {
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
@@ -38,9 +39,9 @@ export default class SearchScreen extends React.Component {
         } else {
             this.setState({ hasLocationPermissions: true });
         }
-        
+
         let res = await Location.getCurrentPositionAsync({});
-        this.setState({ location: JSON.stringify(res) });        
+        this.setState({ location: JSON.stringify(res) });
     };
 
     getNearestGeoPoints = async () => {
@@ -48,20 +49,29 @@ export default class SearchScreen extends React.Component {
         let loc = '63.417261,10.404676,70';
         console.debug("button pressed");
         return fetch(`https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?app_id=7M1fjsLrtDqtp4uXNxmL&app_code=oaBhRwHWhclh-48Wb1IcNw&mode=retrieveLandmarks&prox=${loc}`)
-        .then(response => response.json())
-        .then(json => {
-            let formatted = []
-            for (var i = 0; i <  Object.keys(json.Response.View[0].Result).length; i++) {
-                let entry = json.Response.View[0].Result[i];
-                //console.debug(entry);
-                formatted.push({index:i, name:entry.Location.Name, lat: entry.Location.DisplayPosition.Latitude, long: entry.Location.DisplayPosition.Longitude});
-                console.log(formatted[formatted.length-1]);
-                this.setState({pointsOfInterest: formatted});
-            }
-            //this.setState({pointsOfInterest: json})
-        })
-        .catch(error => console.error(error));
+            .then(response => response.json())
+            .then(json => {
+                let formatted = []
+                for (var i = 0; i < Object.keys(json.Response.View[0].Result).length; i++) {
+                    let entry = json.Response.View[0].Result[i];
+                    //console.debug(entry);
+                    formatted.push({ index: i, name: entry.Location.Name, lat: entry.Location.DisplayPosition.Latitude, long: entry.Location.DisplayPosition.Longitude });
+                    console.log(formatted[formatted.length - 1]);
+                    this.setState({ pointsOfInterest: formatted });
+                }
+                this.storeData(formatted);
+            })
+            .catch(error => console.error(error));
     };
+
+    storeData = async (list) => {
+        try {
+            await AsyncStorage.setItem('available', JSON.stringify(list));
+        } catch (error) {
+            //console.error("Could not store in async storage")
+            console.error(error.message);
+        }
+    }
 }
 
 const styles = StyleSheet.create({
