@@ -3,8 +3,17 @@ import { MapView, Marker } from 'expo';
 
 import { Constants, Location, Permissions } from 'expo';
 
+/*
+Component for a Map. Has the props 'markers'. 'markers' can be put in as a list of objects with the keys coordinate, title and description.
 
+*/
 export default class Map extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.populateMarkers = this.populateMarkers.bind(this);
+  }
+
   state = {
       region: null,
       hasLocationPermissions: false,
@@ -38,6 +47,31 @@ export default class Map extends React.Component {
     this.setState({region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }});
   };
 
+  populateMarkers() {
+
+    var markers = this.props.markers;
+    var keyIndex = 1;
+
+    console.log("poop");
+    var mComps = markers.map(function (marker) {
+      keyIndex++;
+      /*
+      var coords = {latitude: 60.00, longitude: 8.00};
+      var title = "Point of interest";
+      var description = "Description of a thing";
+      */
+      var coords = marker.coordinate;
+      var title = marker.title;
+      var description = marker.description;
+
+      console.log(title);
+
+      return <MapView.Marker key={keyIndex} coordinate={coords} title={title} description={description}/>;
+    });
+
+    return mComps;
+  }
+
   render() {
     return (
       <MapView
@@ -56,9 +90,10 @@ export default class Map extends React.Component {
         <MapView.Marker
           key={1}
           coordinate={this.state.locationCoords}
-          title={"Me"}
+          title={"Me!"}
           description={"This is where i am!"}
         />
+        {this.populateMarkers()}
       </MapView>
     );
   }
