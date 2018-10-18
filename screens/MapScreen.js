@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Map from '../components/Map'
 
 export default class MapScreen extends React.Component {
     constructor(props)
@@ -28,9 +29,9 @@ export default class MapScreen extends React.Component {
     
     render() {
         return (
-            <View style={styles.container}>
-                <Map markers={this.markers}/>
-            </View>
+            
+          <Map markers={this.markers}/>
+            
         );
     }
 }

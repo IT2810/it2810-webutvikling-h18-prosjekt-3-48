@@ -2,6 +2,7 @@ import React from 'react';
 import { MapView, Marker } from 'expo';
 
 import { Constants, Location, Permissions } from 'expo';
+import LocationManager from '../utility/LocationManager'
 
 /*
 Component for a Map. Has the props 'markers'. 'markers' can be put in as a list of objects with the keys coordinate, title and description.
@@ -12,6 +13,7 @@ export default class Map extends React.Component {
     super(props);
 
     this.populateMarkers = this.populateMarkers.bind(this);
+    this.updateLocation = this.updateLocation.bind(this);
   }
 
   state = {
@@ -25,8 +27,14 @@ export default class Map extends React.Component {
   this.setState({ region });
   }
 
+  updateLocation(location) {
+    this.setState({locationCoords: {latitude: location.coords.latitude, longitude: location.coords.longitude}});
+    this.setState({region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }});
+  }
+
   componentDidMount() {
-    this.getLocation();
+    var lcm = new LocationManager();
+    var location = lcm.getLocation(this);
   }
 
   getLocation = async () => {
@@ -55,11 +63,7 @@ export default class Map extends React.Component {
     console.log("poop");
     var mComps = markers.map(function (marker) {
       keyIndex++;
-      /*
-      var coords = {latitude: 60.00, longitude: 8.00};
-      var title = "Point of interest";
-      var description = "Description of a thing";
-      */
+      
       var coords = marker.coordinate;
       var title = marker.title;
       var description = marker.description;
