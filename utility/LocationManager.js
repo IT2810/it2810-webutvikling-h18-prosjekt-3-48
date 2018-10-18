@@ -3,20 +3,20 @@ import { Constants, Location, Permissions } from 'expo';
 
 export default class LocationManager  {
   
-  getLocation = async (component) => {
+  /*
+    Returns the a location object from expo. Can also update the location in the component through a callback function.
+  */
+  getLocation = async (callback) => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== 'granted') {
-      /*
-      this.setState({
-        locationResult: 'Permission to access location was denied',
-      });*/
-    } else {
-      /*
-      this.setState({ hasLocationPermissions: true });
-      */
-    }
+      //What happens when permission has been denied.
+    } 
 
     let location = await Location.getCurrentPositionAsync({});
-    component.updateLocation(location);
+    if (callback === undefined) {
+      return location;
+    }
+    callback(location);
+    
   };
 }

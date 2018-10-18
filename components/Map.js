@@ -34,33 +34,14 @@ export default class Map extends React.Component {
 
   componentDidMount() {
     var lcm = new LocationManager();
-    var location = lcm.getLocation(this);
+    var location = lcm.getLocation(this.updateLocation);
   }
-
-  getLocation = async () => {
-   let { status } = await Permissions.askAsync(Permissions.LOCATION);
-   if (status !== 'granted') {
-     this.setState({
-       locationResult: 'Permission to access location was denied',
-     });
-   } else {
-     this.setState({ hasLocationPermissions: true });
-   }
-
-   let location = await Location.getCurrentPositionAsync({});
-   this.setState({ locationResult: JSON.stringify(location) });
-   
-   this.setState({locationCoords: {latitude: location.coords.latitude, longitude: location.coords.longitude}})
-   // Center the map on the location we just fetched.
-    this.setState({region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }});
-  };
 
   populateMarkers() {
 
     var markers = this.props.markers;
     var keyIndex = 1;
 
-    console.log("poop");
     var mComps = markers.map(function (marker) {
       keyIndex++;
       
@@ -88,14 +69,12 @@ export default class Map extends React.Component {
         }}
         region={this.state.region}
         showPointsOfInterests={true}
-
-        //onRegionChange={this.onRegionChange}
       >
         <MapView.Marker
           key={1}
           coordinate={this.state.locationCoords}
-          title={"Me!"}
-          description={"This is where i am!"}
+          title={"Current Location"}
+          pinColor='#00FF00'
         />
         {this.populateMarkers()}
       </MapView>

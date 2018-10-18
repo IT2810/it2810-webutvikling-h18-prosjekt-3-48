@@ -29,9 +29,7 @@ export default class MapScreen extends React.Component {
     
     render() {
         return (
-            
           <Map markers={this.markers}/>
-            
         );
     }
 }
