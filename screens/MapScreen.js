@@ -1,12 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Map from '../components/Map';
+import StorageManager from '../utility/StorageManager';
 
 export default class MapScreen extends React.Component {
+  state = {
+    markers: null,
+  }
+
+
     constructor(props)
     {
-        super(props);
+      super(props);
 
+      this.markersLoaded = this.markersLoaded.bind(this);
+      /*
         this.markers =[
         {
             coordinate: {latitude: 63.41809226569999, longitude: 10.406053585173026},
@@ -23,13 +31,22 @@ export default class MapScreen extends React.Component {
             title: "Testitude3",
             description: "desc desc test",
          },
-       ];
+       ];*/
+       
+      //var sm = new StorageManager();
+      //sm.loadData(this.markersLoaded)
+    }
 
+    markersLoaded(err, result) {
+      console.log("MarkersLoaded!");
+      var res = JSON.parse(result);
+      console.log(typeof(res));
+      this.setState({markers: res});
     }
     
     render() {
         return (
-          <Map markers={this.markers}/>
+          <Map/>
         );
     }
 }
