@@ -1,5 +1,4 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 import { createBottomTabNavigator } from 'react-navigation';
 import MapScreen from './screens/MapScreen.js';
 import ListScreen from './screens/ListScreen.js';
@@ -45,12 +44,3 @@ const BottomTabNavigator = createBottomTabNavigator(
         }
     }
 )
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
