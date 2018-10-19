@@ -15,7 +15,7 @@ expo start
 
 ### React-navigation
 
-We used react navigation to get a simple tab navigation for our app. This library makes it really simple to create tabs. Later on we realized that this tab view does not follow the standard lifecycle for updating the state. (`componenetDidMount()` does not fire when switching tabs). So we had to add some event listeners to make sure we update the apps state properly when switching tabs.
+We used react navigation to get a simple tab navigation for our app. This library makes it really simple to create tabs. Later on we realized that this tab view does not follow the standard lifecycle for updating the state. (`componentDidMount()` does not fire when switching tabs). So we had to add some event listeners to make sure we update the apps state properly when switching tabs.
 
 ### Search / Point of interest API
 
