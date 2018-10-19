@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Button, NetInfo, ActivityIndicator } from 'react-native';
 import { Location, Permissions } from 'expo';
 import { AsyncStorage } from 'react-native';
+import PointList from '../components/PointList';
 
 export default class SearchScreen extends React.Component {
     constructor(props) {
@@ -16,6 +17,13 @@ export default class SearchScreen extends React.Component {
 
     componentDidMount() {
         this.getLocationAsync();
+        this.subs = [
+            this.props.navigation.addListener('didFocus', () => this.getLocationAsync()),
+        ];
+    }
+
+    componentWillUnmount() {
+        this.subs.forEach(sub => sub.remove());
     }
 
     getLocationAsync = async () => {
@@ -111,8 +119,9 @@ export default class SearchScreen extends React.Component {
     }
 
     // moves a point from available to active
-    addToActive = async (selectedPoint) => {
-        selectedPoint = this.state.pointsOfInterest[0];
+    addToActive = async (pressed) => {
+        let selectedPoint = pressed.item;
+        console.log('pressed ', selectedPoint)
         // first we remove the selected point from the available list and update the async storage
         otherPoints = this.state.pointsOfInterest.filter(function (p) {
             return p.index !== selectedPoint.index
@@ -127,7 +136,6 @@ export default class SearchScreen extends React.Component {
             if (value != null) { // we only want to parse if value has data
                 activePoints = JSON.parse(value);
             }
-            console.log(activePoints);
             // we update the index as to not get conflicts later
             selectedPoint.index = Object.keys(activePoints).length;
             // then add and update the async storage
@@ -152,11 +160,11 @@ export default class SearchScreen extends React.Component {
         // if we have POI in state we want to show them
         if (this.state.pointsOfInterest) {
             return (
-                <View style={styles.container}>
-                    <Text>SearchScreen</Text>
-                    <Text>{JSON.stringify(this.state.pointsOfInterest)}</Text>
-                    <Button title='Refresh' color="#3585ee" onPress={this.refresh}></Button>
-                    <Button title='test' color="#3585ee" onPress={this.addToActive}></Button>
+                <View>
+                    <PointList list={this.state.pointsOfInterest} add={{symbol:'  +  ', method:this.addToActive}}/>
+                    <View style={styles.refresh}>
+                        <Button title='Refresh' color="#3585ee" onPress={this.refresh}></Button>
+                    </View>
                 </View>
             );
         } else {
@@ -187,4 +195,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    refresh: {
+        position: "absolute",
+        top: 20,
+        alignSelf: 'center',
+    }
 });
