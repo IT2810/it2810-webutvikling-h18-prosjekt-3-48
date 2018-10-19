@@ -1,10 +1,12 @@
 import { Constants, Location, Permissions } from 'expo';
 
-
+/*
+  A class for managing the location of the user.
+*/
 export default class LocationManager  {
   
   /*
-    Returns the a location object from expo. Can also update the location in the component through a callback function.
+    Returns the a location object from expo. Returns the location through a callback function.
   */
   getLocation = async (callback) => {
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -17,6 +19,5 @@ export default class LocationManager  {
       return location;
     }
     callback(location);
-    
   };
 }
