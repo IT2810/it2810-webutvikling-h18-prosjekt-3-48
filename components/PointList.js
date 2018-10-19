@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
-import { List, ListItem } from 'react-native-elements';
+import { List } from 'react-native-elements';
 
+// This components creates a list of points of interest, with optional buttons
 export default class PointList extends React.PureComponent {
 
     render() {
