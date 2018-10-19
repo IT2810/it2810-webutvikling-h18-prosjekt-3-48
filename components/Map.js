@@ -1,12 +1,10 @@
 import React from 'react';
 import { MapView, Marker } from 'expo';
-
-import { Constants, Location, Permissions } from 'expo';
 import LocationManager from '../utility/LocationManager';
+import StorageManager from '../utility/StorageManager';
 
 /*
-Component for a Map. Has the props 'markers'. 'markers' can be put in as a list of objects with the keys coordinate, title and description.
-
+  Component for a Map. Retrives possible points of interest from AsyncStorage. Also finds the current position of the user.
 */
 export default class Map extends React.Component {
   constructor(props) {
@@ -14,45 +12,83 @@ export default class Map extends React.Component {
 
     this.populateMarkers = this.populateMarkers.bind(this);
     this.updateLocation = this.updateLocation.bind(this);
+    this.updateMarkers = this.updateMarkers.bind(this);
   }
 
+
+  /*
+    The state variables of the component.
+      - markers is the data of the current points of interest. An array of objects with the values title, description and coordinate.
+        - title is the name displayed when clicking the marker
+        - description is the text beneath the title.
+        - coordinate is an object containing the latitude and longitude of the marker.
+      - region is the current region / area displayed by the map.
+      - locationCoords are the current coordinates of the user.
+  */
   state = {
+      markers: null,
       region: null,
-      hasLocationPermissions: false,
-      locationResult: null,
       locationCoords: {latitude: 0, longitude: 0},
+      populated: false,
   }
 
+  /*
+    Changes the state of the component when the region changes.
+  */
   onRegionChange(region) {
   this.setState({ region });
   }
 
+  /*
+    Sets the location of the user on the map. Also loads the points of interest from 'AsyncStorage'. Used when the location of the user has been found.
+  */
   updateLocation(location) {
-    this.setState({locationCoords: {latitude: location.coords.latitude, longitude: location.coords.longitude}});
-    this.setState({region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }});
+    this.setState({
+      locationCoords: {latitude: location.coords.latitude, longitude: location.coords.longitude}, 
+      region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }
+    });
+
+    //loads the markers from storage.
+    var sm = new StorageManager();
+    sm.loadData(this.updateMarkers);
+  }
+  
+  /*
+    Updates the marker data. Invoked after loading the points of interest from 'AsyncStorage'.
+  */
+  updateMarkers(err, result) {
+    var res = JSON.parse(result);
+    this.setState({markers: res});
+  }
+
+  /*
+    Used by 'render()' to render the markers on the map.
+  */
+  populateMarkers() {
+    var markers = this.state.markers;
+
+    //Determines if there are markers to fill the map with.
+    if (markers == null) {
+      return;
+    }
+
+    var keyIndex = 1;
+
+    //Dynamicaly generates the neccessary amount of markers.
+    var mComps = markers.map(function (marker) {  
+      keyIndex++;
+      var coords = {latitude: marker.coordinate.lat, longitude : marker.coordinate.long};
+      var title = marker.title;
+      var description = marker.description;
+      return <MapView.Marker key={keyIndex} coordinate={coords} title={title} description={description}/>;
+    });
+    
+    return mComps;
   }
 
   componentDidMount() {
     var lcm = new LocationManager();
     var location = lcm.getLocation(this.updateLocation);
-  }
-
-  populateMarkers() {
-
-    var markers = this.props.markers;
-    var keyIndex = 1;
-
-    var mComps = markers.map(function (marker) {
-      keyIndex++;
-      
-      var coords = marker.coordinate;
-      var title = marker.title;
-      var description = marker.description;
-
-      return <MapView.Marker key={keyIndex} coordinate={coords} title={title} description={description}/>;
-    });
-
-    return mComps;
   }
 
   render() {
@@ -67,6 +103,7 @@ export default class Map extends React.Component {
         }}
         region={this.state.region}
         showPointsOfInterests={true}
+        provider="google"
       >
         <MapView.Marker
           key={1}
