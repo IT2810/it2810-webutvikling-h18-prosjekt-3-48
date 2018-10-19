@@ -35,35 +35,43 @@ export default class SearchScreen extends React.Component {
             location: loc,
         });
 
-        // then we check if the device has internet access
-        NetInfo.isConnected.fetch()
-        .then(isConnected => {
-            if (isConnected) {
-                //if it does we fetch the POI data from the API
-                this.getNearestGeoPointsAsync();
+        // first we try to get the existing data from AsyncStorage
+        AsyncStorage.getItem('POI:available').then((value) => {
+            if (value) {
+                // in the case where there is date we simply load it
+                this.setState({
+                    pointsOfInterest: JSON.parse(value),
+                    loading: false,
+                });
             } else {
-                // else we get the existing data from AsyncStorage
-                AsyncStorage.getItem('POI:available').then((value) => {
-                    if (value == null) {
+                // if there is none then we check if the device has internet access
+                NetInfo.isConnected.fetch()
+                    .then(isConnected => {
+                        if (isConnected) {
+                            //if it does we fetch the POI data from the API
+                            this.getNearestGeoPointsAsync();
+                        } else {
+                            // else we are out of luck
+                            this.setState({
+                                errorMessage: "No data in AsyncStorage :(\nconnect to internet to fetch points of interest",
+                                loading: false,
+                            });
+                        }
+                    })
+                    .catch(error => {
                         this.setState({
-                            errorMessage: "No data in AsyncStorage :(\nconnect to internet to fetch points of interest",
-                            loading: false,
-                        })
-                    } else {
-                        this.setState({
-                            pointsOfInterest: JSON.parse(value),
+                            errorMessage: error,
                             loading: false,
                         });
-                    }
-                });
+                    });
             }
-        })
-        .catch(error => { this.setState({ errorMessage: error, loading: false, }) });
-    };
+        });
+    }
+
 
     getNearestGeoPointsAsync = async () => {
         // unpack, we only care about lat, long and alt
-        var {latitude, longitude, altitude } = await this.state.location.coords;
+        var { latitude, longitude, altitude } = await this.state.location.coords;
         // get data from geocoder API
         return fetch(`https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?app_id=7M1fjsLrtDqtp4uXNxmL&app_code=oaBhRwHWhclh-48Wb1IcNw&mode=retrieveLandmarks&prox=${latitude},${longitude},${altitude}`)
             .then(response => response.json())
@@ -88,18 +96,45 @@ export default class SearchScreen extends React.Component {
                     });
                 }
                 // each time we fetch data we also update AsyncStorage
-                this.storeData(formatted);
+                this.storeData('POI:available', formatted);
             })
             .catch(error => this.setState({ errorMessage: error, loading: false }));
     };
 
-    storeData = async (list) => {
-        // simple store nearest POI in Async
+    storeData = async (tag, list) => {
+        // simple function to store json in async storage
         try {
-            await AsyncStorage.setItem('POI:available', JSON.stringify(list));
+            await AsyncStorage.setItem(tag, JSON.stringify(list));
         } catch (error) {
             this.setState({ errorMessage: error });
         }
+    }
+
+    // moves a point from available to active
+    addToActive = async (selectedPoint) => {
+        selectedPoint = this.state.pointsOfInterest[0];
+        // first we remove the selected point from the available list and update the async storage
+        otherPoints = this.state.pointsOfInterest.filter(function (p) {
+            return p.index !== selectedPoint.index
+        });
+        this.setState({
+            pointsOfInterest: otherPoints,
+        });
+        this.storeData('POI:available', otherPoints);
+        // then we need to get the active POIs and add this value
+        AsyncStorage.getItem('POI:active').then((value) => {
+            var activePoints = [];
+            if (value != null) { // we only want to parse if value has data
+                activePoints = JSON.parse(value);
+            }
+            console.log(activePoints);
+            // we update the index as to not get conflicts later
+            selectedPoint.index = Object.keys(activePoints).length;
+            // then add and update the async storage
+            activePoints.push(selectedPoint);
+            this.storeData('POI:active', activePoints);
+        });
+        this.forceUpdate();
     }
 
     refresh = () => {
@@ -110,7 +145,7 @@ export default class SearchScreen extends React.Component {
             pointsOfInterest: null,
             loading: true,
         });
-        this.getLocationAsync();
+        this.getNearestGeoPointsAsync();
     }
 
     render() {
@@ -121,6 +156,7 @@ export default class SearchScreen extends React.Component {
                     <Text>SearchScreen</Text>
                     <Text>{JSON.stringify(this.state.pointsOfInterest)}</Text>
                     <Button title='Refresh' color="#3585ee" onPress={this.refresh}></Button>
+                    <Button title='test' color="#3585ee" onPress={this.addToActive}></Button>
                 </View>
             );
         } else {
