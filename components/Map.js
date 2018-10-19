@@ -1,7 +1,5 @@
 import React from 'react';
 import { MapView, Marker } from 'expo';
-
-import { Constants, Location, Permissions } from 'expo';
 import LocationManager from '../utility/LocationManager';
 import StorageManager from '../utility/StorageManager';
 
@@ -11,9 +9,6 @@ import StorageManager from '../utility/StorageManager';
 export default class Map extends React.Component {
   constructor(props) {
     super(props);
-
-    //Used for determining if the map is populated by markers or not.
-    this.populated = false;
 
     this.populateMarkers = this.populateMarkers.bind(this);
     this.updateLocation = this.updateLocation.bind(this);
@@ -72,11 +67,11 @@ export default class Map extends React.Component {
   populateMarkers() {
     var markers = this.state.markers;
 
-    if (markers == null || this.populated) {
+    //Determines if there are markers to fill the map with.
+    if (markers == null) {
       return;
     }
 
-    this.populated = true;
     var keyIndex = 1;
 
     //Dynamicaly generates the neccessary amount of markers.
