@@ -1,5 +1,8 @@
 # IT2810 - Project 3 - Group 48
 
+## The App
+We've created an application which is a challenge app to visit certain points of interest which are displayed on a map. You also have the oppurtunity to find points of interest nearby using the search functionality. The available points can be added to a list to mark them as "active" and create a challenge. You can then see your available challenges and remove them and also mark them as done.
+
 ## Install and Setup
 To install the required libaries and start the project, use these scripts:
 ```bs
@@ -101,8 +104,8 @@ To test this application we used the JEST-framework for the testing. To start, i
 ```bs
 npm install --save-dev jest
 ```
-After installing the framework, you have to create a folder named __tests__ and put all the tests there and have the names of the testfiles end with 'test.js'. 
-We tested our application by testing each component we used, using Snapshot tests. The JEST-framework then created a snapshot of the application when the test is runned, and the snapshot is saved inside the __tests__ folder. The snapshot consists of the application in a JSON-object form and you can test if the application renders correctly. This is how we decided to test the application, simply because we didn't see the need to test the frameworks and API used. Much of the logic is based on the APIs we used so the only thing to really test was if the components rendered properly. We did this by using a renderer from the react-test-renderer library and create a component and see if it matches the snapshot.
+After installing the framework, you have to create a folder named \_\_tests\_\_ and put all the tests there and have the names of the testfiles end with 'test.js'. 
+We tested our application by testing each component we used, using Snapshot tests. The JEST-framework then created a snapshot of the application when the test is runned, and the snapshot is saved inside the \_\_tests\_\_ folder. The snapshot consists of the application in a JSON-object form and you can test if the application renders correctly. This is how we decided to test the application, simply because we didn't see the need to test the frameworks and API used. Much of the logic is based on the APIs we used so the only thing to really test was if the components rendered properly. We did this by using a renderer from the react-test-renderer library and create a component and see if it matches the snapshot.
 ```jsx
 import renderer from 'react-test-renderer';
 import App from '../../App.js';
@@ -114,5 +117,5 @@ it('renders correctly', () => {
     expect(tree).toMatchSnapshot();
 });
 ```
-The testing didn't go as planned though. The tests were written correctly but wouldn't run on our PCs, due to errors within the framework and some unicode issues within the frameworks' files. Since we only planned to test if the components were rendered correctly, we didn't see the need in using too much resources on solving these issues. We have included the tests we wrote, but the __tests__ folder is incomplete since we never got to create any snapshots due to our issues with the framework.  
+The testing didn't go as planned though. The tests were written correctly but wouldn't run on our PCs, due to errors within the framework and some unicode issues within the frameworks' files. Since we only planned to test if the components were rendered correctly, we didn't see the need in using too much resources on solving these issues. We have included the tests we wrote, but the \_\_tests\_\_ folder is incomplete since we never got to create any snapshots due to our issues with the framework.  
 
