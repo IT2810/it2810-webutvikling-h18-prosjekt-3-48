@@ -1,75 +1,124 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
-import { Constants, Location, Permissions } from 'expo';
+import { StyleSheet, Text, View, Button, NetInfo, ActivityIndicator } from 'react-native';
+import { Location, Permissions } from 'expo';
 import { AsyncStorage } from 'react-native';
 
 export default class SearchScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            isLoading: true,
+            loading: true,
+            errorMessage: null,
             location: null,
-            pointsOfInterest: []
+            pointsOfInterest: null,
         }
     }
 
-    render() {
-        if (false) {
-            return (
-                <View style={styles.container}>
-                    <Text>Loading points of interest</Text>
-                </View>
-            );
-        }
-        //loc = Location.getCurrentPositionAsync({});
-        return (
-            <View style={styles.container}>
-                <Text>SearchScreen</Text>
-                <Button title='Get nearest' color="#841584" onPress={this.getNearestGeoPoints}></Button>
-            </View>
-        );
+    componentDidMount() {
+        this.getLocationAsync();
     }
 
-    getLocation = async () => {
+    getLocationAsync = async () => {
+        this.setState({errorMessage: null, loading: true});
         let { status } = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
             this.setState({
-                location: 'Permission to access location was denied',
+                errorMessage: 'Permission to access location was denied',
+                loading: false,
             });
-        } else {
-            this.setState({ hasLocationPermissions: true });
+            return;
         }
 
-        let res = await Location.getCurrentPositionAsync({});
-        this.setState({ location: JSON.stringify(res) });
+        var loc = await Location.getCurrentPositionAsync({});
+        this.setState({
+            location: loc,
+        });
+
+        NetInfo.isConnected.fetch()
+        .then(isConnected => {
+            if (isConnected) {
+                this.getNearestGeoPointsAsync();
+            } else {
+                AsyncStorage.getItem('POI:available').then((value) => {
+                    this.setState({
+                        pointsOfInterest: JSON.parse(value),
+                        loading: false,
+                    });
+                });
+            }
+        })
+        .catch(error => { this.setState({ errorMessage: error, loading: false, }) });
     };
 
-    getNearestGeoPoints = async () => {
-        //let loc = '37.7442,-119.5931,1000';
-        let loc = '63.417261,10.404676,70';
-        console.debug("button pressed");
-        return fetch(`https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?app_id=7M1fjsLrtDqtp4uXNxmL&app_code=oaBhRwHWhclh-48Wb1IcNw&mode=retrieveLandmarks&prox=${loc}`)
+    getNearestGeoPointsAsync = async () => {
+        var {latitude, longitude, altitude } = await this.state.location.coords;
+        return fetch(`https://reverse.geocoder.api.here.com/6.2/reversegeocode.json?app_id=7M1fjsLrtDqtp4uXNxmL&app_code=oaBhRwHWhclh-48Wb1IcNw&mode=retrieveLandmarks&prox=${latitude},${longitude},${altitude}`)
             .then(response => response.json())
             .then(json => {
-                let formatted = []
+                var formatted = []
                 for (var i = 0; i < Object.keys(json.Response.View[0].Result).length; i++) {
                     let entry = json.Response.View[0].Result[i];
-                    //console.debug(entry);
-                    formatted.push({ index: i, name: entry.Location.Name, lat: entry.Location.DisplayPosition.Latitude, long: entry.Location.DisplayPosition.Longitude });
-                    console.log(formatted[formatted.length - 1]);
-                    this.setState({ pointsOfInterest: formatted });
+                    formatted.push(
+                        {
+                            index: i,
+                            title: entry.Location.Name,
+                            description: entry.Location.Address.Label,
+                            coordinate: {
+                                lat: entry.Location.DisplayPosition.Latitude,
+                                long: entry.Location.DisplayPosition.Longitude
+                            },
+                        });
+                    this.setState({
+                        pointsOfInterest: formatted,
+                        loading: false,
+                    });
                 }
                 this.storeData(formatted);
             })
-            .catch(error => console.error(error));
+            .catch(error => this.setState({ errorMessage: error, loading: false }));
     };
 
     storeData = async (list) => {
         try {
-            await AsyncStorage.setItem('available', JSON.stringify(list));
+            await AsyncStorage.setItem('POI:available', JSON.stringify(list));
         } catch (error) {
-            //console.error("Could not store in async storage")
-            console.error(error.message);
+            this.setState({ errorMessage: error });
+        }
+    }
+
+    refresh = () => {
+        this.setState({
+            errorMessage: null,
+            location: null,
+            pointsOfInterest: null,
+            loading: true,
+        });
+        this.getLocationAsync();
+    }
+
+    render() {
+        if (this.state.pointsOfInterest) {
+            return (
+                <View style={styles.container}>
+                    <Text>SearchScreen</Text>
+                    <Text>{JSON.stringify(this.state.pointsOfInterest)}</Text>
+                    <Button title='Refresh' color="#3585ee" onPress={this.refresh}></Button>
+                </View>
+            );
+        } else {
+            var text = 'Loading location...';
+            if (this.state.errorMessage) {
+                text = this.state.errorMessage;
+            } else if (this.state.location) {
+                text = 'Loading points of interest...';
+            }
+            return (
+                <View style={styles.container}>
+                    <Text>{text}</Text>
+                    <ActivityIndicator size="large" color="#1565ee" animating={this.state.loading}></ActivityIndicator>
+                    <Button title='Try again' disabled={this.state.loading} color="#3585ee" onPress={this.refresh}></Button>
+                </View>
+            );
         }
     }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { MapView, Marker } from 'expo';
 
 import { Constants, Location, Permissions } from 'expo';
-import LocationManager from '../utility/LocationManager'
+import LocationManager from '../utility/LocationManager';
 
 /*
 Component for a Map. Has the props 'markers'. 'markers' can be put in as a list of objects with the keys coordinate, title and description.
@@ -48,8 +48,6 @@ export default class Map extends React.Component {
       var coords = marker.coordinate;
       var title = marker.title;
       var description = marker.description;
-
-      console.log(title);
 
       return <MapView.Marker key={keyIndex} coordinate={coords} title={title} description={description}/>;
     });
