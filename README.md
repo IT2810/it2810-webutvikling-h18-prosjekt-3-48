@@ -1,7 +1,12 @@
 # IT2810 - Project 3 - Group 48
 
 ## Install and Setup
-Bare installer
+To install the required libaries and start the project, use these scripts:
+```bs
+npm install 
+npm install expo-cli --global
+expo start
+```
 
 ## API og Libraries
 
@@ -85,3 +90,6 @@ location.coordinate // {latitude, longitude}
 
 More documentation and information about the Expo Location module exists in the link below.   
 https://docs.expo.io/versions/latest/sdk/location
+
+## FlatList component
+To display all our active and available challenges we decided to use the FlatList component. FlatList offered what we needed, which is simply to display data in a list and have buttons attached to every list item. FlatList requires two props: data and renderItem. The data field is simply an array of whatever relevant data you wish to display and the renderItem field is a function which takes an item from the data field and renders it into the list. It is also recommended to have a keyExtractor-field, simply to have something to separate all the items in the list from eachother.
