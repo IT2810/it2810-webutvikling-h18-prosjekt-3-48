@@ -1,6 +1,3 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Map from '../components/Map';
 import { AsyncStorage } from 'react-native';
 
 /*
@@ -11,9 +8,9 @@ export default class StorageManager {
   /*
     Stores the data specified in the parameter in Asynchronous Storage.
   */
-  storeData = async (data) => {
+  storeData = async (tag, data) => {
     try {
-      await AsyncStorage.setItem('POI:available', JSON.stringify(data));
+      await AsyncStorage.setItem(tag, JSON.stringify(data));
     } catch (error) {
       this.setState({ errorMessage: error });
     }
@@ -22,9 +19,9 @@ export default class StorageManager {
   /*
     Loads the data specified in the parameter in Asynchronous Storage. The data is sent to the callback function as a parameter.
   */
-  loadData = async (callback) => {
+  loadData = async (tag, callback) => {
     try {
-      await AsyncStorage.getItem('POI:available', callback);
+      await AsyncStorage.getItem(tag, callback);
     } catch (error) {
       this.setState({ errorMessage: error });
     }

@@ -11,16 +11,20 @@ export default class ListScreen extends React.Component {
     }
 
     componentDidMount() {
+        // get active challenges from AsyncStorage
         this.getLocalPoints();
+        // this is update rendering on tab change 
         this.subs = [
             this.props.navigation.addListener('didFocus', () => this.getLocalPoints()),
         ];
     }
-
+    
+    // this is update rendering on tab change 
     componentWillUnmount() {
         this.subs.forEach(sub => sub.remove());
     }
 
+    // retrieves active challenges from AsyncStorage 
     getLocalPoints = async () => {
         AsyncStorage.getItem('POI:active').then((value) => {
             if (value != null) {
@@ -29,8 +33,8 @@ export default class ListScreen extends React.Component {
         });
     }
 
+    // simple function to store json in async storage
     storeData = async (tag, list) => {
-        // simple function to store json in async storage
         try {
             await AsyncStorage.setItem(tag, JSON.stringify(list));
         } catch (error) {
@@ -38,6 +42,7 @@ export default class ListScreen extends React.Component {
         }
     }
 
+    // marks the challenge as done and removes it from the active list
     check = async (pressed) => {
         let selectedPoint = pressed.item;
         let otherPoints = this.state.activePoints.filter(function (p) {
@@ -50,6 +55,7 @@ export default class ListScreen extends React.Component {
         this.forceUpdate();
     }
 
+    // removes a challenge from the active list and puts it back to the available list
     remove = async (pressed) => {
         let selectedPoint = pressed.item;
         let otherPoints = this.state.activePoints.filter(function (p) {

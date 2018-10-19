@@ -13,6 +13,7 @@ export default class App extends React.Component {
     }
 }
 
+// creates a simple tab navigation menu
 const BottomTabNavigator = createBottomTabNavigator(
     {
         Map: {

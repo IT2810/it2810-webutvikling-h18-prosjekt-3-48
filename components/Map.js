@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapView, Marker } from 'expo';
+import { MapView } from 'expo';
 import LocationManager from '../utility/LocationManager';
 import StorageManager from '../utility/StorageManager';
 
@@ -12,7 +12,6 @@ export default class Map extends React.Component {
 
     this.populateMarkers = this.populateMarkers.bind(this);
     this.updateLocation = this.updateLocation.bind(this);
-    this.updateMarkers = this.updateMarkers.bind(this);
   }
 
 
@@ -26,7 +25,6 @@ export default class Map extends React.Component {
       - locationCoords are the current coordinates of the user.
   */
   state = {
-      markers: null,
       region: null,
       locationCoords: {latitude: 0, longitude: 0},
       populated: false,
@@ -40,32 +38,20 @@ export default class Map extends React.Component {
   }
 
   /*
-    Sets the location of the user on the map. Also loads the points of interest from 'AsyncStorage'. Used when the location of the user has been found.
+    Sets the location of the user on the map. Used when the location of the user has been found.
   */
   updateLocation(location) {
     this.setState({
       locationCoords: {latitude: location.coords.latitude, longitude: location.coords.longitude}, 
       region: { latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.0922, longitudeDelta: 0.0421 }
     });
-
-    //loads the markers from storage.
-    var sm = new StorageManager();
-    sm.loadData(this.updateMarkers);
-  }
-  
-  /*
-    Updates the marker data. Invoked after loading the points of interest from 'AsyncStorage'.
-  */
-  updateMarkers(err, result) {
-    var res = JSON.parse(result);
-    this.setState({markers: res});
   }
 
   /*
     Used by 'render()' to render the markers on the map.
   */
   populateMarkers() {
-    var markers = this.state.markers;
+    var markers = this.props.markers;
 
     //Determines if there are markers to fill the map with.
     if (markers == null) {
