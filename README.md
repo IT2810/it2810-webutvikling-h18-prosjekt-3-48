@@ -13,8 +13,23 @@ expo start
 
 ## API og Libraries
 
+### React-navigation
+
+We used react navigation to get a simple tab navigation for our app. This library makes it really simple to create tabs. Later on we realized that this tab view does not follow the standard lifecycle for updating the state. (`componenetDidMount()` does not fire when switching tabs). So we had to add some event listeners to make sure we update the apps state properly when switching tabs.
+
+### Search / Point of interest API
+
+To get the nearby points of interest we simply send a fetch request to [Here's geocoding api](https://developer.here.com/documentation/geocoder/topics/what-is.html) It is a really nice api you can use for free. It takes in a standard GET request and returns data in json format. The API call we used was:
+```
+https://reverse.geocoder.api.here.com/6.2/reversegeocode.json
+  ?app_id={YOUR_APP_ID}
+  &app_code={YOUR_APP_CODE}
+  &mode=retrieveLandmarks
+  &prox={lat},{long},{alt}
+```
+
 ### React-native-maps
-This API is a way to use either Google maps or Apple maps within a React Native App. We used this library because it was the easiest way to include map functionality in our app. It is also easily accessible through Expo, no need to install a whole other bunch of things. Since the app showing the user's location in relation to their closest points of interest is an essential part of the app, the functionality offered by this library is considerer essential. 
+This API is a way to use either Google maps or Apple maps within a React Native App. We used this library because it was the easiest way to include map functionality in our app. It is also easily accessible through Expo, no need to install a whole other bunch of things. Since the app showing the user's location in relation to their closest points of interest is an essential part of the app, the functionality offered by this library is considered essential.
 
 The map can easily be embedded into the app with this code.
 ```jsx
