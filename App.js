@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from 'react-navigation';
 import MapScreen from './screens/MapScreen.js';
 import ListScreen from './screens/ListScreen.js';
 import SearchScreen from './screens/SearchScreen.js';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from 'react-native-vector-icons/Feather';
 
 export default class App extends React.Component {
     render() {
@@ -30,7 +30,7 @@ const BottomTabNavigator = createBottomTabNavigator(
             navigationOptions: {
                 tabBarLabel: 'List',
                 tabBarIcon: ({tintColor}) => (
-                    <Icon name="format-list-bulleted" size={24} color={tintColor} />
+                    <Icon name="list" size={24} color={tintColor} />
                 )
             }
         },
@@ -39,7 +39,7 @@ const BottomTabNavigator = createBottomTabNavigator(
             navigationOptions: {
                 tabBarLabel: 'Search',
                 tabBarIcon: ({tintColor}) => (
-                    <Icon name="map-marker-plus" size={24} color={tintColor} />
+                    <Icon name="search" size={24} color={tintColor} />
                 )
             }
         }
